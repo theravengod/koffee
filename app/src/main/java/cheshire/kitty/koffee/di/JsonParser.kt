@@ -1,0 +1,16 @@
+package cheshire.kitty.koffee.di
+
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.json.Json
+
+@Module
+@InstallIn(SingletonComponent::class)
+object JsonParser {
+    @Provides
+    fun provideJsonParser(): Json {
+        return Json { ignoreUnknownKeys = true }
+    }
+}

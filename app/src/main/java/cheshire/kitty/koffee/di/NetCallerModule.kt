@@ -1,5 +1,9 @@
 package cheshire.kitty.koffee.di
 
+import android.annotation.SuppressLint
+import cheshire.kitty.koffee.BuildConfig
+import cheshire.kitty.koffee.net.CoffeeApi
+import cheshire.kitty.koffee.net.CoffeeApiImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,8 +21,16 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
 import timber.log.Timber
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
+
+const val IGNORE_SSL_ERRORS = false
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -33,20 +45,10 @@ object NetCallerModule {
                 callTimeout(50, TimeUnit.SECONDS)
                 readTimeout(50, TimeUnit.SECONDS)
 
-                //if (BuildConfig.DEBUG) {
-                /*val naiveTrustManager = @SuppressLint("CustomX509TrustManager")
-                    object : X509TrustManager {
-                        override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
-                        override fun checkClientTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-                        override fun checkServerTrusted(certs: Array<X509Certificate>, authType: String) = Unit
-                    }
-                val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
-                    val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
-                    init(null, trustAllCerts, SecureRandom())
-                }.socketFactory
-                sslSocketFactory(insecureSocketFactory, naiveTrustManager)
-                hostnameVerifier { _, _ -> true }*/
-                //}
+                @Suppress("KotlinConstantConditions", "SimplifyBooleanWithConstants")
+                if (BuildConfig.DEBUG && IGNORE_SSL_ERRORS) {
+                    ignoreSSLErrors()
+                }
             }
 
         }
@@ -78,6 +80,26 @@ object NetCallerModule {
 
         install(DefaultRequest) {
             header(HttpHeaders.ContentType, ContentType.Application.Json)
+        }
+    }
+
+    @Provides
+    fun provideCoffeeApiService(httpClient: HttpClient, json: Json): CoffeeApi = CoffeeApiImpl(httpClient, json)
+
+    private fun OkHttpClient.Builder.ignoreSSLErrors(): OkHttpClient.Builder {
+        val naiveTrustManager = @SuppressLint("CustomX509TrustManager") object : X509TrustManager {
+            override fun checkClientTrusted(chain: Array<out X509Certificate?>?, authType: String?) = Unit
+            override fun checkServerTrusted(chain: Array<out X509Certificate?>?, authType: String?) = Unit
+            override fun getAcceptedIssuers(): Array<X509Certificate> = arrayOf()
+        }
+        val insecureSocketFactory = SSLContext.getInstance("TLSv1.2").apply {
+            val trustAllCerts = arrayOf<TrustManager>(naiveTrustManager)
+            init(null, trustAllCerts, SecureRandom())
+        }.socketFactory
+
+        return this.apply {
+            sslSocketFactory(insecureSocketFactory, naiveTrustManager)
+            hostnameVerifier { _, _ -> true }
         }
     }
 }
