@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.compose.hilt.navigation)
     // 3rd party
     implementation(libs.timber)
     implementation(libs.ktor.client.core)
