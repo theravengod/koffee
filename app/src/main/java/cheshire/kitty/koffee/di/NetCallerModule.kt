@@ -37,7 +37,7 @@ const val IGNORE_SSL_ERRORS = false
 object NetCallerModule {
 
     @Provides
-    fun provideHttpClient(): HttpClient = HttpClient(OkHttp)  {
+    fun provideHttpClient(jsonParser: Json): HttpClient = HttpClient(OkHttp) {
         engine {
             config {
                 followRedirects(true)
@@ -54,13 +54,7 @@ object NetCallerModule {
         }
 
         install(ContentNegotiation) {
-            json(
-                Json {
-                    prettyPrint = true
-                    isLenient = true
-                    ignoreUnknownKeys = true
-                }
-            )
+            json(jsonParser)
         }
 
         install(Logging) {

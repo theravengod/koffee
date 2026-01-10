@@ -8,9 +8,13 @@ import kotlinx.serialization.json.Json
 
 @Module
 @InstallIn(SingletonComponent::class)
-object JsonParser {
+object JsonParserModule {
     @Provides
     fun provideJsonParser(): Json {
-        return Json { ignoreUnknownKeys = true }
+        return Json {
+            prettyPrint = true
+            isLenient = true
+            ignoreUnknownKeys = true
+        }
     }
 }

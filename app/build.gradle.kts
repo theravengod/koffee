@@ -1,4 +1,3 @@
-import com.android.tools.r8.internal.im
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -72,6 +71,8 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     // Tests
     testImplementation(libs.junit)
+    testImplementation(libs.ktor.client.mock)
+    testImplementation(libs.kotlinx.coroutines.test)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
