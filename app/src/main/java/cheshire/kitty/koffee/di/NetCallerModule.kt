@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import cheshire.kitty.koffee.BuildConfig
 import cheshire.kitty.koffee.net.CoffeeApi
 import cheshire.kitty.koffee.net.CoffeeApiImpl
+import cheshire.kitty.koffee.other.DynamicSerializerFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -78,7 +79,8 @@ object NetCallerModule {
     }
 
     @Provides
-    fun provideCoffeeApiService(httpClient: HttpClient, json: Json): CoffeeApi = CoffeeApiImpl(httpClient, json)
+    fun provideCoffeeApiService(httpClient: HttpClient, json: Json, dynamicSerializerFactory: DynamicSerializerFactory): CoffeeApi =
+        CoffeeApiImpl(httpClient, json, dynamicSerializerFactory)
 
     private fun OkHttpClient.Builder.ignoreSSLErrors(): OkHttpClient.Builder {
         val naiveTrustManager = @SuppressLint("CustomX509TrustManager") object : X509TrustManager {

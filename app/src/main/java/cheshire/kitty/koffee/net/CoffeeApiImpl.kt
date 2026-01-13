@@ -1,7 +1,7 @@
 package cheshire.kitty.koffee.net
 
 import cheshire.kitty.koffee.models.Product
-import cheshire.kitty.koffee.other.DynamicKeySerializer
+import cheshire.kitty.koffee.other.DynamicSerializerFactory
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
@@ -13,7 +13,8 @@ import javax.inject.Inject
 
 class CoffeeApiImpl @Inject constructor(
     private val apiClient: HttpClient,
-    private val jsonParser: Json
+    private val jsonParser: Json,
+    private val serializerFactory: DynamicSerializerFactory
 ) : CoffeeApi {
     override fun getProducts(page: Int): Flow<List<Product>> {
         return flow {
@@ -22,7 +23,7 @@ class CoffeeApiImpl @Inject constructor(
             }.bodyAsText()
 
             if (rawResponse.isNotBlank()) {
-                emit(jsonParser.decodeFromString(DynamicKeySerializer(Product.serializer(), "products"), rawResponse).items)
+                emit(jsonParser.decodeFromString(serializerFactory.create(Product.serializer(), "products"), rawResponse).items)
             } else {
                 emit(emptyList())
             }

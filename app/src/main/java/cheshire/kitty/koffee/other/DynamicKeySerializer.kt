@@ -5,6 +5,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonTransformingSerializer
+import javax.inject.Inject
 
 class DynamicKeySerializer<T>(
     private val tSerializer: KSerializer<T>,
@@ -19,5 +20,11 @@ class DynamicKeySerializer<T>(
         }
 
         return JsonObject(jsonMap)
+    }
+}
+
+class DynamicSerializerFactory @Inject constructor() {
+    fun <T> create(serializer: KSerializer<T>, key: String): DynamicKeySerializer<T> {
+        return DynamicKeySerializer(serializer, key)
     }
 }

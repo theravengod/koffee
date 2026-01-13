@@ -1,5 +1,6 @@
 package cheshire.kitty.koffee.di
 
+import cheshire.kitty.koffee.other.DynamicSerializerFactory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,4 +18,10 @@ object JsonParserModule {
             ignoreUnknownKeys = true
         }
     }
+
+    @Provides
+    fun provideDynamicSerializerFactory(): DynamicSerializerFactory {
+        return DynamicSerializerFactory()
+    }
+
 }
